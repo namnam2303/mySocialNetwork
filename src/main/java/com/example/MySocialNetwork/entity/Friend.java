@@ -1,5 +1,6 @@
 package com.example.MySocialNetwork.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,10 +32,12 @@ public class Friend {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "friend_id", nullable = false)
+    @JsonIgnore
     private User friend;
 
     @Enumerated(EnumType.STRING)

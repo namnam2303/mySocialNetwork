@@ -1,5 +1,6 @@
 package com.example.MySocialNetwork.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,10 +32,12 @@ public class Reaction {
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
+    @JsonIgnore
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -43,17 +46,17 @@ public class Reaction {
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
-
-    public enum ReactionType {
-        LIKE, LOVE, ANGRY, SAD, HAHA
-    }
     @Column(unique = true, nullable = false)
     private String publicId;
-
 
     @PrePersist
     private void prePersist() {
         createdAt = LocalDateTime.now();
         publicId = UUID.randomUUID().toString();
+    }
+
+
+    public enum ReactionType {
+        LIKE, LOVE, ANGRY, SAD, HAHA
     }
 }
