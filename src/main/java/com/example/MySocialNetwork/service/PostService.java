@@ -1,13 +1,14 @@
 package com.example.MySocialNetwork.service;
 
+import com.example.MySocialNetwork.entity.Comment;
 import com.example.MySocialNetwork.entity.Post;
+import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
-import com.example.MySocialNetwork.exception.User.UserNotFoundException;
+import com.example.MySocialNetwork.repository.CommentRepository;
 import com.example.MySocialNetwork.repository.PostRepository;
 import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.MySocialNetwork.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -17,16 +18,19 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 @Service
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.commentRepository = commentRepository;
     }
 
     public Post createPost(String userPublicId, String content, MultipartFile image) {
@@ -36,9 +40,12 @@ public class PostService {
         Post post = new Post();
         post.setUser(user);
         post.setContent(content);
-        post.setImageUrl(saveImage(image, userPublicId));
+        if (image != null && !image.isEmpty()) {
+            post.setImageUrl(saveImage(image, userPublicId));
+        }
         return postRepository.save(post);
     }
+
     public Post updatePost(String publicId, Post postDetails) {
         Post existingPost = postRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with publicId: " + publicId));
@@ -52,16 +59,18 @@ public class PostService {
         Post post = postRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with publicId: " + publicId));
 
-        post.setIsDeleted(true);
-        postRepository.save(post);
+        postRepository.delete(post);
     }
-    public Post getPost(String publicId) {
+
+    public Post getPostById(String publicId) {
         return postRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with publicId: " + publicId));
     }
+
     public List<Post> getAllPostsByUser(User user) {
         return postRepository.findAllByUserAndIsDeletedFalse(user);
     }
+
     private String saveImage(MultipartFile image, String userPublicId) {
         // Đường dẫn cơ sở cho các tệp ảnh
         String baseDir = "statics/post/image";
@@ -84,6 +93,7 @@ public class PostService {
         }
         return filePath;
     }
+
     private String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf('.') == -1) {
             return "";
@@ -91,5 +101,8 @@ public class PostService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
-
+    public List<Comment> getCommentsByPost(String publicId) {
+        Post post = getPostById(publicId);
+        return commentRepository.findAllByPostAndIsDeletedFalse(post);
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.MySocialNetwork.controller;
 
 
+import com.example.MySocialNetwork.entity.Comment;
 import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
@@ -23,10 +24,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/post")
 public class PostController {
 
     private final PostService postService;
@@ -43,13 +43,17 @@ public class PostController {
     @PostMapping("/{userPublicId}")
     public ResponseEntity<?> createPost(@PathVariable String userPublicId,
                                         @RequestParam("content") String content,
-                                        @RequestParam("image") MultipartFile image) {
+                                        @RequestParam(value = "image", required = false) MultipartFile image) {
         Post createdPost = postService.createPost(userPublicId, content, image);
         return ResponseEntity.ok(createdPost);
     }
 
     @PutMapping("/{publicId}")
-    public ResponseEntity<?> updatePost(@PathVariable String publicId, @Valid @RequestBody Post postDetails) {
+    public ResponseEntity<?> updatePost(@PathVariable String publicId, @Valid @RequestBody Post postDetails, BindingResult bindingResult) {
+        ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
+        if (errorsMap != null) {
+            return errorsMap;
+        }
         try {
             Post updatedPost = postService.updatePost(publicId, postDetails);
             return ResponseEntity.ok(updatedPost);
@@ -71,7 +75,7 @@ public class PostController {
     @GetMapping("/{publicId}")
     public ResponseEntity<?> getPost(@PathVariable String publicId) {
         try {
-            Post post = postService.getPost(publicId);
+            Post post = postService.getPostById(publicId);
             return ResponseEntity.ok(post);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -86,6 +90,16 @@ public class PostController {
             return ResponseEntity.ok(posts);
         } else {
             return ResponseEntity.badRequest().body("User not found");
+        }
+    }
+
+    @GetMapping("/{publicId}/comments")
+    public ResponseEntity<?> getCommentsByPost(@PathVariable String publicId) {
+        try {
+            List<Comment> comments = postService.getCommentsByPost(publicId);
+            return ResponseEntity.ok(comments);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

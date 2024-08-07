@@ -53,6 +53,7 @@ public class Post {
 
     // Relationships
     @OneToMany(mappedBy = "post")
+    @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "post")
