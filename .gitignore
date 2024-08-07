@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Bỏ qua thư mục chứa ảnh post
+statics/post/image/
+
 ### STS ###
 .apt_generated
 .classpath
