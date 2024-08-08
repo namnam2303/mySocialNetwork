@@ -35,7 +35,6 @@ public class RegisterRequest {
     @NotNull(message = "Birth date is mandatory")
     private LocalDate birthDate;
 
-    private String avatar;
     private String occupation;
     private String location;
 }

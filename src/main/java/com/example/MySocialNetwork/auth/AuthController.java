@@ -89,7 +89,6 @@ public class AuthController {
         user.setRole("USER");
         user.setFullName(registerRequest.getFullName());
         user.setBirthDate(registerRequest.getBirthDate());
-        user.setAvatar(registerRequest.getAvatar());
         user.setOccupation(registerRequest.getOccupation());
         user.setLocation(registerRequest.getLocation());
         return user;
