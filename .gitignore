@@ -6,6 +6,7 @@ target/
 
 # Bỏ qua thư mục chứa ảnh post
 statics/post/image/
+statics/report/
 
 ### STS ###
 .apt_generated
