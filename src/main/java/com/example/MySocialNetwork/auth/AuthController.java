@@ -1,10 +1,13 @@
 package com.example.MySocialNetwork.auth;
 
-import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.security.JwtResponse;
+import com.example.MySocialNetwork.auth.LoginRequest;
+import com.example.MySocialNetwork.auth.RegisterRequest;
+import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.security.config.JwtTokenProvider;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,6 +33,7 @@ public class AuthController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private MapValidationErrorService mapValidationErrorService;
 
@@ -45,7 +47,7 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication.getName());
+        String jwt = tokenProvider.generateToken(authentication);
         return ResponseEntity.ok(new JwtResponse(jwt, authentication.getName()));
     }
 

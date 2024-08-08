@@ -50,7 +50,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role = "user";
+    private String role = "USER";
 
     @Column(unique = true)
     private String publicId;

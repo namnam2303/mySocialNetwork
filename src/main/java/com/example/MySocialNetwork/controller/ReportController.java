@@ -2,90 +2,56 @@ package com.example.MySocialNetwork.controller;
 
 import com.example.MySocialNetwork.entity.Report;
 import com.example.MySocialNetwork.entity.User;
-import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
-import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.ReportService;
 import com.example.MySocialNetwork.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/reports")
+@PreAuthorize("hasRole('ADMIN')")
 public class ReportController {
 
     private final ReportService reportService;
     private final UserService userService;
-    private final MapValidationErrorService mapValidationErrorService;
 
     @Autowired
-    public ReportController(ReportService reportService, UserService userService, MapValidationErrorService mapValidationErrorService) {
+    public ReportController(ReportService reportService, UserService userService) {
         this.reportService = reportService;
         this.userService = userService;
-        this.mapValidationErrorService = mapValidationErrorService;
     }
 
-    @PostMapping("/{userPublicId}")
-    public ResponseEntity<?> createReport(@PathVariable String userPublicId, @Valid @RequestBody Report report, BindingResult bindingResult) {
-        ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
-        if (errorsMap != null) {
-            return errorsMap;
-        }
-
+    @GetMapping("/{userPublicId}")
+    public ResponseEntity<byte[]> generateReport(@PathVariable String userPublicId) {
         User user = userService.findByPublicId(userPublicId);
-        if (user == null) {
-            throw new ResourceNotFoundException("User with id " + userPublicId + " not found");
-        }
-        report.setUser(user);
-        Report createdReport = reportService.createReport(report);
-        return ResponseEntity.ok(createdReport);
-    }
+        Report report = reportService.generateReport(user);
 
-    @PutMapping("/{publicId}")
-    public ResponseEntity<?> updateReport(@PathVariable String publicId, @Valid @RequestBody Report reportDetails, BindingResult bindingResult) {
-        ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
-        if (errorsMap != null) {
-            return errorsMap;
-        }
         try {
-            Report updatedReport = reportService.updateReport(publicId, reportDetails);
-            return ResponseEntity.ok(updatedReport);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+            // Lưu báo cáo vào tệp
+            String filePath = reportService.saveReportToFile(user, report);
 
-    @DeleteMapping("/{publicId}")
-    public ResponseEntity<?> deleteReport(@PathVariable String publicId) {
-        try {
-            reportService.deleteReport(publicId);
-            return ResponseEntity.ok().body("Report deleted successfully");
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+            // Đọc tệp vào bộ đệm byte
+            byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
 
-    @GetMapping("/{publicId}")
-    public ResponseEntity<?> getReport(@PathVariable String publicId) {
-        try {
-            Report report = reportService.getReport(publicId);
-            return ResponseEntity.ok(report);
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+            // Trả về báo cáo dưới dạng tệp đính kèm
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + Paths.get(filePath).getFileName().toString())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(fileContent);
 
-    @GetMapping("/user/{userPublicId}")
-    public ResponseEntity<?> getAllReportsByUser(@PathVariable String userPublicId) {
-        User user = userService.findByPublicId(userPublicId);
-        if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to generate report", e);
         }
-        List<Report> reports = reportService.getAllReportsByUser(user);
-        return ResponseEntity.ok(reports);
     }
 }
