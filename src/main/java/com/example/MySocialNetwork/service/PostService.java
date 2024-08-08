@@ -5,9 +5,13 @@ import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
 import com.example.MySocialNetwork.repository.CommentRepository;
+import com.example.MySocialNetwork.repository.FriendRepository;
 import com.example.MySocialNetwork.repository.PostRepository;
 import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,12 +29,14 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final FriendRepository friendRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, FriendRepository friendRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
+        this.friendRepository = friendRepository;
     }
 
     public Post createPost(String userPublicId, String content, MultipartFile image) {
@@ -71,6 +77,10 @@ public class PostService {
         return postRepository.findAllByUserAndIsDeletedFalse(user);
     }
 
+    public List<Post> getTimelinePosts(User user) {
+        List<User> friends = friendRepository.findAllAcceptedFriendsByUser(user);
+        return postRepository.findTop20ByUserInOrderByCreatedAtDesc(friends);
+    }
     private String saveImage(MultipartFile image, String userPublicId) {
         // Đường dẫn cơ sở cho các tệp ảnh
         String baseDir = "statics/post/image";

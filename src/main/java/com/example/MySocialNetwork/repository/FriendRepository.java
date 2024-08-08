@@ -2,6 +2,7 @@ package com.example.MySocialNetwork.repository;
 
 import com.example.MySocialNetwork.entity.Friend;
 import com.example.MySocialNetwork.entity.User;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDateTime;
@@ -13,4 +14,7 @@ public interface FriendRepository extends CrudRepository<Friend, Long> {
     Optional<Friend> findByUserAndFriend(User user, User friend);
     List<Friend> findAllByUserAndStatus(User user, Friend.Status status);
     int countByUserAndStatusAndCreatedAtAfter(User user, Friend.Status status, LocalDateTime createdAt);
+    @Query("SELECT f.friend FROM Friend f WHERE f.user = ?1 AND f.status = 'ACCEPTED'")
+    List<User> findAllAcceptedFriendsByUser(User user);
+
 }
