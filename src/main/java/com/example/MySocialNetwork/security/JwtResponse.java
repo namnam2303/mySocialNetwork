@@ -1,5 +1,6 @@
 package com.example.MySocialNetwork.security;
 
+import com.example.MySocialNetwork.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JwtResponse {
     private String token;
-    private String username;
+    private User user;
 }

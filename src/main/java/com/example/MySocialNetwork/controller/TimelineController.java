@@ -26,13 +26,14 @@ public class TimelineController {
         this.postService = postService;
     }
 
-    @GetMapping("/{userPublicId}")
-    public ResponseEntity<?> getTimeline(@PathVariable String userPublicId) {
-        User user = userService.findByPublicId(userPublicId);
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getTimeline(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
         if (user == null) {
             return ResponseEntity.badRequest().body("User not found");
         }
         List<Post> timelinePosts = postService.getTimelinePosts(user);
+        System.out.println("Get timeline from user " + user.getUsername() + " " + timelinePosts.size());
         return ResponseEntity.ok(timelinePosts);
     }
 }
