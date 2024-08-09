@@ -6,6 +6,7 @@ import com.example.MySocialNetwork.repository.UserRepository;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -84,4 +85,10 @@ public class UserService {
         }
         return userRepository.save(user);
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Username not found"));
+    }
+
+
 }

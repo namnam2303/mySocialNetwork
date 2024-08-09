@@ -20,13 +20,13 @@ public class RegisterRequest {
     @Size(min = 3, max = 50)
     private String username;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
+    @NotBlank(message = "Email is required")
+    @Size(max = 50, message = "Email is not valid",min = 5)
+    @Email(message = "Email is not valid")
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 40)
+    @Size(min = 3, max = 20)
     private String password;
 
     @NotBlank(message = "Please enter your full name")
@@ -35,6 +35,4 @@ public class RegisterRequest {
     @NotNull(message = "Birth date is mandatory")
     private LocalDate birthDate;
 
-    private String occupation;
-    private String location;
 }

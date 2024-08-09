@@ -35,7 +35,6 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
     private User user;
 
     @Lob
@@ -53,7 +52,6 @@ public class Post {
 
     // Relationships
     @OneToMany(mappedBy = "post")
-    @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "post")

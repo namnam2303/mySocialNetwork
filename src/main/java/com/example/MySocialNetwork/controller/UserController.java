@@ -21,9 +21,9 @@ public class UserController {
         this.mapValidationErrorService = mapValidationErrorService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable String id) {
-        User user = userService.getUserById(id);
+    @GetMapping("/{username}")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
         return ResponseEntity.ok(user);
     }
 
