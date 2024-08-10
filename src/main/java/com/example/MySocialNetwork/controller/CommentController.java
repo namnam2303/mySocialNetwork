@@ -33,16 +33,16 @@ public class CommentController {
         this.mapValidationErrorService = mapValidationErrorService;
     }
 
-    @PostMapping("/{postPublicId}/{userPublicId}")
-    public ResponseEntity<?> createComment(@PathVariable String postPublicId, @PathVariable String userPublicId, @Valid @RequestBody Comment comment, BindingResult bindingResult) {
+    @PostMapping("/{postPublicId}/{username}")
+    public ResponseEntity<?> createComment(@PathVariable String postPublicId, @PathVariable String username, @Valid @RequestBody Comment comment, BindingResult bindingResult) {
         ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
         if (errorsMap != null) {
             return errorsMap;
         }
         Post post = postService.getPostById(postPublicId);
-        User user = userService.findByPublicId(userPublicId);
+        User user = userService.getUserByUsername(username);
         if(user == null) {
-            throw new UserNotFoundException("User with id " + userPublicId + " not found");
+            throw new UserNotFoundException("User with username " + username + " not found");
         }
         if (post == null) {
             throw new ResourceNotFoundException("Post with id " + postPublicId + " not found");

@@ -33,15 +33,15 @@ public class ReactionController {
         this.mapValidationErrorService = mapValidationErrorService;
     }
 
-    @PostMapping("/{postPublicId}/{userPublicId}")
-    public ResponseEntity<?> createOrUpdateReaction(@PathVariable String postPublicId, @PathVariable String userPublicId, @Valid @RequestBody Reaction reaction, BindingResult bindingResult) {
+    @PostMapping("/{postPublicId}/{username}")
+    public ResponseEntity<?> createOrUpdateReaction(@PathVariable String postPublicId, @PathVariable String username, @Valid @RequestBody Reaction reaction, BindingResult bindingResult) {
         ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
         if (errorsMap != null) {
             return errorsMap;
         }
 
         Post post = validatePost(postPublicId);
-        User user = validateUser(userPublicId);
+        User user = validateUser(username);
 
         Reaction responseReaction = createOrUpdateReaction(post, user, reaction);
 
@@ -68,10 +68,10 @@ public class ReactionController {
         return post;
     }
 
-    private User validateUser(String userPublicId) {
-        User user = userService.findByPublicId(userPublicId);
+    private User validateUser(String username) {
+        User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException("User with id " + userPublicId + " not found");
+            throw new UserNotFoundException("User with username " + username+ " not found");
         }
         return user;
     }

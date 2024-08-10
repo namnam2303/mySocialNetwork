@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/post/image")
+@RequestMapping({"/post/image", "/user/avatar"})
 public class ImageController {
     private final UserService userService;
 
@@ -30,8 +30,8 @@ public class ImageController {
         this.userService = userService;
     }
 
-    @GetMapping(value = "/{userPublicId}/{fileName:.+}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getImage(@PathVariable String userPublicId, @PathVariable String fileName) throws IOException {
+    @GetMapping(value = "/post/{userPublicId}/{fileName:.+}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getPostImage(@PathVariable String userPublicId, @PathVariable String fileName) throws IOException {
         User user = userService.findByPublicId(userPublicId);
         if (user == null) {
             throw new UserNotFoundException("User with id " + userPublicId + " not found");
@@ -43,5 +43,22 @@ public class ImageController {
             throw new IOException("Could not read file: " + filePath);
         }
     }
-}
 
+    @GetMapping(value = "/{userPublicId}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getUserAvatar(@PathVariable String userPublicId) throws IOException {
+        User user = userService.findByPublicId(userPublicId);
+        if (user == null) {
+            throw new UserNotFoundException("User with id " + userPublicId + " not found");
+        }
+        String avatarPath = user.getAvatar();
+        if (avatarPath == null || avatarPath.isEmpty()) {
+            throw new IOException("User has no avatar");
+        }
+        Path filePath = Paths.get(avatarPath).normalize();
+        if (Files.exists(filePath) && Files.isReadable(filePath)) {
+            return Files.readAllBytes(filePath);
+        } else {
+            throw new IOException("Could not read avatar file: " + filePath);
+        }
+    }
+}
