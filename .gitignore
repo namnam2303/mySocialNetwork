@@ -7,7 +7,7 @@ target/
 # Bỏ qua thư mục chứa ảnh post
 statics/post/image/
 statics/report/
-
+statics/
 ### STS ###
 .apt_generated
 .classpath
