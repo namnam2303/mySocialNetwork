@@ -1,7 +1,7 @@
 package com.example.MySocialNetwork.controller;
 
 import com.example.MySocialNetwork.entity.User;
-import com.example.MySocialNetwork.entity.UserUpdateDTO;
+import com.example.MySocialNetwork.dto.UserUpdateDTO;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.UserService;
 import jakarta.validation.Valid;

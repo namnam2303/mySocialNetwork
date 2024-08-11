@@ -30,13 +30,13 @@ public class ImageController {
         this.userService = userService;
     }
 
-    @GetMapping(value = "/post/{userPublicId}/{fileName:.+}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getPostImage(@PathVariable String userPublicId, @PathVariable String fileName) throws IOException {
-        User user = userService.findByPublicId(userPublicId);
+    @GetMapping(value = "/post/{username}/{fileName:.+}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getPostImage(@PathVariable String username, @PathVariable String fileName) throws IOException {
+        User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException("User with id " + userPublicId + " not found");
+            throw new UserNotFoundException("User with username " + username + " not found");
         }
-        Path filePath = Paths.get("statics/post/image/" + userPublicId).resolve(fileName).normalize();
+        Path filePath = Paths.get("statics/post/image/" + username).resolve(fileName).normalize();
         if (Files.exists(filePath) && Files.isReadable(filePath)) {
             return Files.readAllBytes(filePath);
         } else {
@@ -44,11 +44,11 @@ public class ImageController {
         }
     }
 
-    @GetMapping(value = "/{userPublicId}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public @ResponseBody byte[] getUserAvatar(@PathVariable String userPublicId) throws IOException {
-        User user = userService.findByPublicId(userPublicId);
+    @GetMapping(value = "/{username}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody byte[] getUserAvatar(@PathVariable String username) throws IOException {
+        User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException("User with id " + userPublicId + " not found");
+            throw new UserNotFoundException("User with username " + username + " not found");
         }
         String avatarPath = user.getAvatar();
         if (avatarPath == null || avatarPath.isEmpty()) {

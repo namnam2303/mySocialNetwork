@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/reactions")
+@RequestMapping("/api/reaction")
 public class ReactionController {
 
     private final ReactionService reactionService;

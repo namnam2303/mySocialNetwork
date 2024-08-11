@@ -39,17 +39,18 @@ public class PostService {
         this.friendRepository = friendRepository;
     }
 
-    public Post createPost(String userPublicId, String content, MultipartFile image) {
-        User user = userRepository.findByPublicId(userPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with publicId: " + userPublicId));
+    public List<Post> createPost(String username, String content, MultipartFile image) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
         Post post = new Post();
         post.setUser(user);
         post.setContent(content);
         if (image != null && !image.isEmpty()) {
-            post.setImageUrl(saveImage(image, userPublicId));
+            post.setImageUrl(saveImage(image, username));
         }
-        return postRepository.save(post);
+        postRepository.save(post);
+        return getTimelinePosts(user);
     }
 
     public Post updatePost(String publicId, Post postDetails) {
@@ -79,6 +80,7 @@ public class PostService {
 
     public List<Post> getTimelinePosts(User user) {
         List<User> friends = friendRepository.findAllAcceptedFriendsByUser(user);
+        friends.add(user);
         return postRepository.findTop20ByUserInOrderByCreatedAtDesc(friends);
     }
     private String saveImage(MultipartFile image, String userPublicId) {

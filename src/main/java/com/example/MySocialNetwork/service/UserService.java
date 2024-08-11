@@ -1,7 +1,7 @@
 package com.example.MySocialNetwork.service;
 
 import com.example.MySocialNetwork.entity.User;
-import com.example.MySocialNetwork.entity.UserUpdateDTO;
+import com.example.MySocialNetwork.dto.UserUpdateDTO;
 import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.repository.UserRepository;
 import lombok.Getter;
@@ -17,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -33,9 +32,9 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User getUserById(String id) {
-        return userRepository.findByPublicId(id)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+    public User getUserById(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User with username " + username + " not found"));
     }
 
     public void updateUser(String username, UserUpdateDTO user) {

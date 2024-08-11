@@ -1,5 +1,6 @@
 package com.example.MySocialNetwork.service;
 
+import com.example.MySocialNetwork.dto.ReactionDTO;
 import com.example.MySocialNetwork.entity.Reaction;
 import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.User;
@@ -46,5 +47,8 @@ public class ReactionService {
 
     public List<Reaction> getReactionsByPost(Post post) {
         return reactionRepository.findAllByPost(post);
+    }
+    public List<ReactionDTO> findReactionDTOsByPostId(String publicId) {
+        return reactionRepository.findReactionDTOsByPostId(publicId);
     }
 }

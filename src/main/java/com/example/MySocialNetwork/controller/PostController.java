@@ -1,12 +1,15 @@
 package com.example.MySocialNetwork.controller;
 
 
+import com.example.MySocialNetwork.dto.PostDTO;
+import com.example.MySocialNetwork.dto.ReactionDTO;
 import com.example.MySocialNetwork.entity.Comment;
 import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.PostService;
+import com.example.MySocialNetwork.service.ReactionService;
 import com.example.MySocialNetwork.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,20 +35,22 @@ public class PostController {
     private final PostService postService;
     private final UserService userService;
     private final MapValidationErrorService mapValidationErrorService;
+    private final ReactionService reactionService;
 
     @Autowired
-    public PostController(PostService postService, UserService userService, MapValidationErrorService mapValidationErrorService) {
+    public PostController(PostService postService, UserService userService, MapValidationErrorService mapValidationErrorService, ReactionService reactionService) {
         this.postService = postService;
         this.userService = userService;
         this.mapValidationErrorService = mapValidationErrorService;
+        this.reactionService = reactionService;
     }
 
-    @PostMapping("/{userPublicId}")
-    public ResponseEntity<?> createPost(@PathVariable String userPublicId,
+    @PostMapping("/{username}")
+    public ResponseEntity<?> createPost(@PathVariable String username,
                                         @RequestParam("content") String content,
                                         @RequestParam(value = "image", required = false) MultipartFile image) {
-        Post createdPost = postService.createPost(userPublicId, content, image);
-        return ResponseEntity.ok(createdPost);
+        List<Post> newList = postService.createPost(username, content, image);
+        return ResponseEntity.ok(newList);
     }
 
     @PutMapping("/{publicId}")
@@ -76,7 +81,9 @@ public class PostController {
     public ResponseEntity<?> getPost(@PathVariable String publicId) {
         try {
             Post post = postService.getPostById(publicId);
-            return ResponseEntity.ok(post);
+            List<ReactionDTO> reactions = reactionService.findReactionDTOsByPostId(publicId);
+            PostDTO postDTO = new PostDTO(post, reactions);
+            return ResponseEntity.ok(postDTO);
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
