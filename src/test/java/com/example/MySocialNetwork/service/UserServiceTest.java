@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -47,6 +46,7 @@ class UserServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(username, result.getUsername());
+
         verify(userRepository).findByUsername(username);
     }
 
@@ -110,6 +110,33 @@ class UserServiceTest {
         assertThrows(RuntimeException.class, () -> userService.updateUser(username, updateDTO));
     }
 
-    // Add more test methods for other UserService functions...
+    @Test
+    void updateUser_UsernameConflict_ThrowsRuntimeException(){
+        // arrange
+        String currentusername = "existinguser";
+        User existingUser = new User();
+        existingUser.setUsername(currentusername);
+        existingUser.setId(54l);
 
+        String newUsername = "conflictusername";
+
+        UserUpdateDTO updateDTO = new UserUpdateDTO();
+        updateDTO.setUsername(newUsername);
+
+        User conflictUser = new User();
+        conflictUser.setId(245l);
+        conflictUser.setUsername(newUsername);
+
+
+        when(userRepository.findByUsername(currentusername)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername(updateDTO.getUsername())).thenReturn(Optional.of(conflictUser));
+
+        //Act and asset
+        assertThrows(RuntimeException.class, () -> userService.updateUser(currentusername, updateDTO));
+
+        // Verify
+        verify(userRepository).findByUsername(currentusername);
+        verify(userRepository).findByUsername(newUsername);
+        verify(userRepository, never()).save(any(User.class));
+    }
 }
