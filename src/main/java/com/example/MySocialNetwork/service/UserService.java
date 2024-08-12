@@ -133,5 +133,14 @@ public class UserService {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
+    public void updatePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
 
 }

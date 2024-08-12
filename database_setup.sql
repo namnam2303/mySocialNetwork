@@ -4,8 +4,8 @@ CREATE DATABASE MySocialNetwork CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
 USE MySocialNetwork;
 
--- Tạo bảng Users
-CREATE TABLE Users (
+-- Tạo bảng User
+CREATE TABLE User (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -21,8 +21,8 @@ CREATE TABLE Users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng Posts
-CREATE TABLE Posts (
+-- Tạo bảng Post
+CREATE TABLE Post (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     content TEXT,
@@ -31,11 +31,11 @@ CREATE TABLE Posts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted BOOLEAN DEFAULT FALSE,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng Comments
-CREATE TABLE Comments (
+-- Tạo bảng Comment
+CREATE TABLE Comment (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
@@ -44,11 +44,11 @@ CREATE TABLE Comments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_deleted BOOLEAN DEFAULT FALSE,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES Posts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (post_id) REFERENCES Post(id),
+    FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng Friends
+-- Tạo bảng Friend
 CREATE TABLE Friends (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -56,23 +56,23 @@ CREATE TABLE Friends (
     status ENUM('PENDING', 'ACCEPTED', 'REJECTED') DEFAULT 'PENDING',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id),
-    FOREIGN KEY (friend_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (friend_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng PasswordResets
-CREATE TABLE PasswordResets (
+-- Tạo bảng PasswordReset
+CREATE TABLE PasswordReset (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     token VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng Reports
-CREATE TABLE Reports (
+-- Tạo bảng Report
+CREATE TABLE Report (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     report_date DATE NOT NULL,
@@ -86,17 +86,17 @@ CREATE TABLE Reports (
     num_hahas INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Tạo bảng Reactions (nếu bạn có bảng này)
-CREATE TABLE Reactions (
+CREATE TABLE Reaction (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     reaction_type ENUM('LIKE', 'LOVE', 'ANGRY', 'SAD', 'HAHA') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     public_id VARCHAR(255) UNIQUE NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES Posts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (post_id) REFERENCES Post(id),
+    FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

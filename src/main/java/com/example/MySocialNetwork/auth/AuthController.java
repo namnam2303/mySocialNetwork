@@ -1,7 +1,7 @@
 package com.example.MySocialNetwork.auth;
 
 import com.example.MySocialNetwork.entity.User;
-import com.example.MySocialNetwork.security.JwtResponse;
+import com.example.MySocialNetwork.security.config.JwtResponse;
 import com.example.MySocialNetwork.security.config.JwtTokenProvider;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.UserService;

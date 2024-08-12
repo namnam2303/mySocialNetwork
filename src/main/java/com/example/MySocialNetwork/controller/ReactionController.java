@@ -9,6 +9,7 @@ import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.PostService;
 import com.example.MySocialNetwork.service.ReactionService;
 import com.example.MySocialNetwork.service.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -49,7 +50,7 @@ public class ReactionController {
     }
 
     @DeleteMapping("/{publicId}")
-    public ResponseEntity<Void> deleteReaction(@PathVariable String publicId) {
+    public ResponseEntity<Void> deleteReaction(@PathVariable @NotNull String publicId) {
         reactionService.deleteReaction(publicId);
         return ResponseEntity.ok().build();
     }
@@ -60,7 +61,7 @@ public class ReactionController {
         return ResponseEntity.ok(reaction);
     }
 
-    private Post validatePost(String postPublicId) {
+    private @NotNull Post validatePost(String postPublicId) {
         Post post = postService.getPostById(postPublicId);
         if (post == null) {
             throw new ResourceNotFoundException("Post with id " + postPublicId + " not found");
@@ -68,7 +69,7 @@ public class ReactionController {
         return post;
     }
 
-    private User validateUser(String username) {
+    private @NotNull User validateUser(String username) {
         User user = userService.getUserByUsername(username);
         if (user == null) {
             throw new UserNotFoundException("User with username " + username+ " not found");
