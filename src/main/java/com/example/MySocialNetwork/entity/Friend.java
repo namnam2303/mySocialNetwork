@@ -37,7 +37,6 @@ public class Friend {
 
     @ManyToOne
     @JoinColumn(name = "friend_id", nullable = false)
-    @JsonIgnore
     private User friend;
 
     @Enumerated(EnumType.STRING)

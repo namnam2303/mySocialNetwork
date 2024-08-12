@@ -36,4 +36,14 @@ public class TimelineController {
         System.out.println("Get timeline from user " + user.getUsername() + " " + timelinePosts.size());
         return ResponseEntity.ok(timelinePosts);
     }
+    @GetMapping("/user/{username}")
+    public ResponseEntity<?> getPostsOfUser(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("User not found");
+        }
+        List<Post> postsFromUser = postService.getUserPosts(user);
+        System.out.println("Get timeline from user " + user.getUsername() + " " + postsFromUser.size());
+        return ResponseEntity.ok(postsFromUser);
+    }
 }

@@ -17,5 +17,7 @@ public interface PostRepository extends CrudRepository<Post, Long> {
     int countLikesByUserAndCreatedAtAfter(User user, LocalDateTime createdAt);
     @Query("SELECT p FROM Post p WHERE p.user IN :users ORDER BY p.createdAt DESC")
     List<Post> findTop20ByUserInOrderByCreatedAtDesc(List<User> users);
+    @Query("SELECT p FROM Post p WHERE p.user = :user AND p.isDeleted = false ORDER BY p.createdAt DESC ")
+    List<Post> findAllByUserAndIsDeletedNot(User user);
 
 }

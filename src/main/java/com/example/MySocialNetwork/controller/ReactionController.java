@@ -11,6 +11,7 @@ import com.example.MySocialNetwork.service.ReactionService;
 import com.example.MySocialNetwork.service.UserService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -80,6 +81,9 @@ public class ReactionController {
     private Reaction createOrUpdateReaction(Post post, User user, Reaction reaction) {
         Reaction existingReaction = reactionService.findByPostAndUser(post, user);
         if (existingReaction != null) {
+            if(existingReaction.getReactionType().equals(reaction.getReactionType())) {
+                return existingReaction;
+            }
             existingReaction.setReactionType(reaction.getReactionType());
             return reactionService.updateReaction(existingReaction);
         } else {

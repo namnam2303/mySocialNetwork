@@ -4,14 +4,13 @@ import com.example.MySocialNetwork.entity.Comment;
 import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
+import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.repository.CommentRepository;
 import com.example.MySocialNetwork.repository.FriendRepository;
 import com.example.MySocialNetwork.repository.PostRepository;
+import com.example.MySocialNetwork.repository.ReactionRepository;
 import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,13 +29,15 @@ public class PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final FriendRepository friendRepository;
+    private final ReactionRepository reactionRepository;
 
     @Autowired
-    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, FriendRepository friendRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, CommentRepository commentRepository, FriendRepository friendRepository, ReactionRepository reactionRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentRepository = commentRepository;
         this.friendRepository = friendRepository;
+        this.reactionRepository = reactionRepository;
     }
 
     public List<Post> createPost(String username, String content, MultipartFile image) {
@@ -63,9 +64,10 @@ public class PostService {
     }
 
     public void deletePost(String publicId) {
+        System.out.println("delete post with id" + publicId);
         Post post = postRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with publicId: " + publicId));
-
+        reactionRepository.deleteAll(post.getReactions());
         postRepository.delete(post);
     }
 
@@ -79,9 +81,20 @@ public class PostService {
     }
 
     public List<Post> getTimelinePosts(User user) {
+        if(!userRepository.existsByUsername(user.getUsername())) {
+            throw new UserNotFoundException("User not found with username: " + user.getUsername());
+        }
         List<User> friends = friendRepository.findAllAcceptedFriendsByUser(user);
         friends.add(user);
         return postRepository.findTop20ByUserInOrderByCreatedAtDesc(friends);
+    }
+
+    public  List<Post> getUserPosts(User user) {
+        if(!userRepository.existsByUsername(user.getUsername())) {
+            throw new UserNotFoundException("User not found with username: " + user.getUsername());
+        }
+        return postRepository.findAllByUserAndIsDeletedNot(user);
+
     }
     private String saveImage(MultipartFile image, String userPublicId) {
         // Đường dẫn cơ sở cho các tệp ảnh
