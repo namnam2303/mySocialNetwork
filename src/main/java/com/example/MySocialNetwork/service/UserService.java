@@ -2,6 +2,8 @@ package com.example.MySocialNetwork.service;
 
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.dto.UserUpdateDTO;
+import com.example.MySocialNetwork.exception.Email.EmailAlreadyExistsException;
+import com.example.MySocialNetwork.exception.User.UserAlreadyExistException;
 import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.repository.UserRepository;
 import lombok.Getter;
@@ -84,10 +86,10 @@ public class UserService {
 
     public User save(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistException("Username already exists");
         }
         return userRepository.save(user);
     }
