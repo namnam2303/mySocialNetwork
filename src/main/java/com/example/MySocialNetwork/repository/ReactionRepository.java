@@ -7,8 +7,7 @@ import com.example.MySocialNetwork.entity.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import com.example.MySocialNetwork.dto.*;
-import com.example.MySocialNetwork.dto.ReactionDTO;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +17,6 @@ public interface ReactionRepository extends CrudRepository<Reaction, Long> {
     List<Reaction> findAllByPost(Post post);
     Reaction findByPostAndUser(Post post, User user);
 
-    @Query("SELECT new com.example.MySocialNetwork.dto.ReactionDTO(r.publicId, r.user.username, r.reactionType, r.createdAt) FROM Reaction r WHERE r.post.publicId = :postId")
+    @Query("SELECT new com.example.MySocialNetwork.dto.ReactionDTO(r.publicId, r.user.username, r.reactionType) FROM Reaction r WHERE r.post.publicId = :postId")
     List<ReactionDTO> findReactionDTOsByPostId(@Param("postId") String postId);
 }

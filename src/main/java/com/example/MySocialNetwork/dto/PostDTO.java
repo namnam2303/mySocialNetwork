@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 public class PostDTO {
@@ -32,7 +31,7 @@ public class PostDTO {
         this.reactions = reactions;
         this.comments = post.getComments().stream()
                 .map(CommentDTO::new)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Data

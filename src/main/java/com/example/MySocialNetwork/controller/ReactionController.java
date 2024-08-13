@@ -1,5 +1,7 @@
 package com.example.MySocialNetwork.controller;
 
+import com.example.MySocialNetwork.dto.PostDTO;
+import com.example.MySocialNetwork.dto.ReactionDTO;
 import com.example.MySocialNetwork.entity.Post;
 import com.example.MySocialNetwork.entity.Reaction;
 import com.example.MySocialNetwork.entity.User;
@@ -17,6 +19,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reaction")
@@ -45,9 +50,17 @@ public class ReactionController {
         User user = validateUser(username);
 
         reactionService.createOrUpdateReaction(post, user, reaction);
-        Post updatedPost = postService.getPostById(postPublicId);
+        Post updatedPost = postService.getPostById(post.getPublicId());
+        List<ReactionDTO> newListReaction = reactionService.getReactionsByPost(updatedPost).stream()
+                .map(reactionItem -> new ReactionDTO(
+                        reactionItem.getPublicId(),
+                        reactionItem.getUser().getUsername(),
+                        reactionItem.getReactionType()
 
-        return ResponseEntity.ok(updatedPost);
+                ))
+                .toList();
+        PostDTO newPostDTO = new PostDTO(post, newListReaction);
+        return ResponseEntity.ok(newPostDTO);
     }
 
     @DeleteMapping("/{publicId}")

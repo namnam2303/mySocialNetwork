@@ -63,12 +63,13 @@ public class PostService {
         return postRepository.save(existingPost);
     }
 
-    public void deletePost(String publicId) {
+    public Post deletePost(String publicId) {
         System.out.println("delete post with id" + publicId);
         Post post = postRepository.findByPublicIdAndIsDeletedFalse(publicId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found with publicId: " + publicId));
         reactionRepository.deleteAll(post.getReactions());
         postRepository.delete(post);
+        return post;
     }
 
     public Post getPostById(String publicId) {

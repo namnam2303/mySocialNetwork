@@ -54,7 +54,7 @@ public class UserService {
             throw new RuntimeException("Username already exists");
         }
 
-        oldUser.setUsername(user.getUsername());
+        oldUser.setUsername(user.getUsername().toLowerCase());
         oldUser.setEmail(user.getEmail());
         oldUser.setFullName(user.getFullName());
         oldUser.setAvatar(user.getAvatar());
@@ -73,6 +73,7 @@ public class UserService {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
+        user.setUsername(user.getUsername().toLowerCase());
         return userRepository.save(user);
     }
 

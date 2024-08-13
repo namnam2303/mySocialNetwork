@@ -15,18 +15,19 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/api/post")
@@ -70,8 +71,8 @@ public class PostController {
     @DeleteMapping("/{publicId}")
     public ResponseEntity<?> deletePost(@PathVariable String publicId) {
         try {
-            postService.deletePost(publicId);
-            return ResponseEntity.ok().body("Post deleted successfully");
+            Post deletedPost = postService.deletePost(publicId);
+            return ResponseEntity.ok().body(new PostDTO(deletedPost, null));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -94,7 +95,15 @@ public class PostController {
         User user = userService.findByPublicId(userId);
         if (user != null) {
             List<Post> posts = postService.getAllPostsByUser(user);
-            return ResponseEntity.ok(posts);
+            List<List<ReactionDTO>> reactionDTOList = posts.stream()
+                    .map(post -> reactionService.findReactionDTOsByPostId(post.getPublicId()))
+                    .toList();
+
+            List<PostDTO> postDTOList = IntStream.range(0, posts.size())
+                    .mapToObj(i -> new PostDTO(posts.get(i), reactionDTOList.get(i)))
+                    .toList();
+
+            return ResponseEntity.ok(postDTOList);
         } else {
             return ResponseEntity.badRequest().body("User not found");
         }
