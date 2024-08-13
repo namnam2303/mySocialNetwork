@@ -45,9 +45,10 @@ public class ReactionController {
         Post post = validatePost(postPublicId);
         User user = validateUser(username);
 
-        Reaction responseReaction = createOrUpdateReaction(post, user, reaction);
+        Reaction responseReaction = reactionService.createOrUpdateReaction(post, user, reaction);
+        Post updatedPost = postService.getPostById(postPublicId);
 
-        return ResponseEntity.ok(responseReaction);
+        return ResponseEntity.ok(updatedPost);
     }
 
     @DeleteMapping("/{publicId}")
@@ -78,18 +79,4 @@ public class ReactionController {
         return user;
     }
 
-    private Reaction createOrUpdateReaction(Post post, User user, Reaction reaction) {
-        Reaction existingReaction = reactionService.findByPostAndUser(post, user);
-        if (existingReaction != null) {
-            if(existingReaction.getReactionType().equals(reaction.getReactionType())) {
-                return existingReaction;
-            }
-            existingReaction.setReactionType(reaction.getReactionType());
-            return reactionService.updateReaction(existingReaction);
-        } else {
-            reaction.setPost(post);
-            reaction.setUser(user);
-            return reactionService.createReaction(reaction);
-        }
-    }
 }

@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/friends")
+@RequestMapping("/api/friend")
 public class FriendController {
 
     private final FriendService friendService;

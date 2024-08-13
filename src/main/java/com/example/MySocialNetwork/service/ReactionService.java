@@ -1,11 +1,12 @@
 package com.example.MySocialNetwork.service;
 
 import com.example.MySocialNetwork.dto.ReactionDTO;
-import com.example.MySocialNetwork.entity.Reaction;
 import com.example.MySocialNetwork.entity.Post;
+import com.example.MySocialNetwork.entity.Reaction;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
 import com.example.MySocialNetwork.repository.ReactionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +22,25 @@ public class ReactionService {
         this.reactionRepository = reactionRepository;
     }
 
-    public Reaction createReaction(Reaction reaction) {
+    private Reaction createReaction(Reaction reaction) {
         return reactionRepository.save(reaction);
     }
 
-    public Reaction updateReaction(Reaction reaction) {
+    private Reaction updateReaction(Reaction reaction) {
         return reactionRepository.save(reaction);
+    }
+
+    @Transactional
+    public Reaction createOrUpdateReaction(Post post, User user, Reaction reaction) {
+        Reaction existingReaction = findByPostAndUser(post, user);
+        if (existingReaction != null) {
+            existingReaction.setReactionType(reaction.getReactionType());
+            return updateReaction(existingReaction);
+        } else {
+            reaction.setPost(post);
+            reaction.setUser(user);
+            return createReaction(reaction);
+        }
     }
 
     public void deleteReaction(String publicId) {
@@ -48,6 +62,7 @@ public class ReactionService {
     public List<Reaction> getReactionsByPost(Post post) {
         return reactionRepository.findAllByPost(post);
     }
+
     public List<ReactionDTO> findReactionDTOsByPostId(String publicId) {
         return reactionRepository.findReactionDTOsByPostId(publicId);
     }
