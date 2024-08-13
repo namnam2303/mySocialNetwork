@@ -52,7 +52,7 @@ public class ImageController {
         }
         String avatarPath = user.getAvatar();
         if (avatarPath == null || avatarPath.isEmpty()) {
-            throw new IOException("User has no avatar");
+            return getDefaultAvatar();
         }
         Path filePath = Paths.get(avatarPath).normalize();
         if (Files.exists(filePath) && Files.isReadable(filePath)) {
@@ -60,5 +60,12 @@ public class ImageController {
         } else {
             throw new IOException("Could not read avatar file: " + filePath);
         }
+    }
+    private @ResponseBody byte[] getDefaultAvatar() throws IOException {
+        Path filePath = Paths.get("statics/default/default.png");
+        if (Files.exists(filePath) && Files.isReadable(filePath)) {
+            return Files.readAllBytes(filePath);
+        }
+        throw new IOException("Could not read default avatar file");
     }
 }

@@ -3,6 +3,7 @@ package com.example.MySocialNetwork.controller;
 import com.example.MySocialNetwork.entity.Friend;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
+import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.service.FriendService;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
 import com.example.MySocialNetwork.service.UserService;
@@ -30,58 +31,58 @@ public class FriendController {
     }
 
     @PostMapping("/{userPublicId}/{friendPublicId}")
-    public ResponseEntity<?> sendFriendRequest(@PathVariable String userPublicId, @PathVariable String friendPublicId) {
-        User user = validateUser(userPublicId);
-        User friend = validateUser(friendPublicId);
+    public ResponseEntity<?> sendFriendRequest(@PathVariable String username, @PathVariable String friendUsername) {
+        User user = validateUser(username);
+        User friend = validateUser(friendUsername);
 
         Friend friendRequest = friendService.sendFriendRequest(user, friend);
         return ResponseEntity.ok(friendRequest);
     }
 
-    @PutMapping("/accept/{friendPublicId}")
-    public ResponseEntity<?> acceptFriendRequest(@PathVariable String friendPublicId, @Valid @RequestBody User user, BindingResult bindingResult) {
+    @PutMapping("/accept/{friendUsername}")
+    public ResponseEntity<?> acceptFriendRequest(@PathVariable String friendUsername, @Valid @RequestBody User user, BindingResult bindingResult) {
         ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
         if (errorsMap != null) {
             return errorsMap;
         }
-        User friend = validateUser(friendPublicId);
+        User friend = validateUser(friendUsername);
         Friend updatedFriend = friendService.acceptFriendRequest(user, friend);
         return ResponseEntity.ok(updatedFriend);
     }
 
-    @PutMapping("/reject/{friendPublicId}")
-    public ResponseEntity<?> rejectFriendRequest(@PathVariable String friendPublicId, @Valid @RequestBody User user, BindingResult bindingResult) {
+    @PutMapping("/reject/{friendUsername}")
+    public ResponseEntity<?> rejectFriendRequest(@PathVariable String friendUsername, @Valid @RequestBody User user, BindingResult bindingResult) {
         ResponseEntity<?> errorsMap = mapValidationErrorService.mapValidationError(bindingResult);
         if (errorsMap != null) {
             return errorsMap;
         }
-        User friend = validateUser(friendPublicId);
+        User friend = validateUser(friendUsername);
         Friend updatedFriend = friendService.rejectFriendRequest(user, friend);
         return ResponseEntity.ok(updatedFriend);
     }
 
-    @DeleteMapping("/{userPublicId}/{friendPublicId}")
-    public ResponseEntity<Void> unfriend(@PathVariable String userPublicId, @PathVariable String friendPublicId) {
-        User user = validateUser(userPublicId);
-        User friend = validateUser(friendPublicId);
+    @DeleteMapping("/{username}/{friendUsername}")
+    public ResponseEntity<Void> unfriend(@PathVariable String username, @PathVariable String friendUsername) {
+        User user = validateUser(username);
+        User friend = validateUser(friendUsername);
 
         friendService.unfriend(user, friend);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/friends-list/{userPublicId}")
-    public ResponseEntity<List<User>> getFriendsList(@PathVariable String userPublicId) {
-        User user = validateUser(userPublicId);
+    @GetMapping("/friends-list/{username}")
+    public ResponseEntity<List<User>> getFriendsList(@PathVariable String username) {
+        User user = validateUser(username);
         List<User> friendsList = friendService.getFriendsList(user);
         return ResponseEntity.ok(friendsList);
     }
 
 
 
-    private User validateUser(String userPublicId) {
-        User user = userService.findByPublicId(userPublicId);
+    private User validateUser(String username) {
+        User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new ResourceNotFoundException("User with id " + userPublicId + " not found");
+            throw new UserNotFoundException("User with username " + username + " not found");
         }
         return user;
     }
