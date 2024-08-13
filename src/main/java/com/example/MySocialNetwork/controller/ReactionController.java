@@ -41,11 +41,10 @@ public class ReactionController {
         if (errorsMap != null) {
             return errorsMap;
         }
-
         Post post = validatePost(postPublicId);
         User user = validateUser(username);
 
-        Reaction responseReaction = reactionService.createOrUpdateReaction(post, user, reaction);
+        reactionService.createOrUpdateReaction(post, user, reaction);
         Post updatedPost = postService.getPostById(postPublicId);
 
         return ResponseEntity.ok(updatedPost);

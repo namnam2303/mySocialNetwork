@@ -6,7 +6,6 @@ import com.example.MySocialNetwork.entity.Reaction;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
 import com.example.MySocialNetwork.repository.ReactionRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,24 +21,23 @@ public class ReactionService {
         this.reactionRepository = reactionRepository;
     }
 
-    private Reaction createReaction(Reaction reaction) {
-        return reactionRepository.save(reaction);
+    private void createReaction(Reaction reaction) {
+        reactionRepository.save(reaction);
     }
 
-    private Reaction updateReaction(Reaction reaction) {
-        return reactionRepository.save(reaction);
+    private void updateReaction(Reaction reaction) {
+        reactionRepository.save(reaction);
     }
 
-    @Transactional
-    public Reaction createOrUpdateReaction(Post post, User user, Reaction reaction) {
+    public void createOrUpdateReaction(Post post, User user, Reaction reaction) {
         Reaction existingReaction = findByPostAndUser(post, user);
         if (existingReaction != null) {
             existingReaction.setReactionType(reaction.getReactionType());
-            return updateReaction(existingReaction);
+            updateReaction(existingReaction);
         } else {
             reaction.setPost(post);
             reaction.setUser(user);
-            return createReaction(reaction);
+            createReaction(reaction);
         }
     }
 
