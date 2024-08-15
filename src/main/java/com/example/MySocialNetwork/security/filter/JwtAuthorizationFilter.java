@@ -1,6 +1,6 @@
 package com.example.MySocialNetwork.security.filter;
 
-import com.example.MySocialNetwork.security.config.JwtTokenProvider;
+import com.example.MySocialNetwork.security.config.jwt.JwtTokenProvider;
 import com.example.MySocialNetwork.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

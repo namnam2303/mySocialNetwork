@@ -1,4 +1,4 @@
-package com.example.MySocialNetwork.security.config;
+package com.example.MySocialNetwork.security.config.jwt;
 
 import com.example.MySocialNetwork.entity.User;
 import lombok.AllArgsConstructor;

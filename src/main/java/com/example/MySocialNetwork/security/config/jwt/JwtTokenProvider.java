@@ -1,4 +1,4 @@
-package com.example.MySocialNetwork.security.config;
+package com.example.MySocialNetwork.security.config.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
