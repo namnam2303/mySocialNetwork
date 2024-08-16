@@ -94,10 +94,14 @@ public class User {
     @JsonIgnore
     private List<Report> reports;
 
+    private LocalDateTime lastLogin;
+    private boolean isOnline = false;
+
     @PrePersist
     private void prePersist() {
         createdAt = LocalDateTime.now();
         this.publicId = UUID.randomUUID().toString();
+        lastLogin = LocalDateTime.now();
     }
     @PreUpdate
     private void preUpdate() {

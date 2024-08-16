@@ -8,6 +8,8 @@ import com.example.MySocialNetwork.repository.ConversationRepository;
 import com.example.MySocialNetwork.repository.MessageRepository;
 import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -49,10 +51,10 @@ public class ConversationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + publicId));
     }
 
-    public List<Conversation> getUserConversations(String username) {
+    public Page<Conversation> getUserConversations(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
-        return conversationRepository.findAllByParticipantOrderByUpdatedAtDesc(user);
+        return conversationRepository.findAllByParticipantsContaining(user, pageable);
     }
 
     public Conversation addParticipantToConversation(String conversationPublicId, String username) {

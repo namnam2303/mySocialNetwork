@@ -3,6 +3,8 @@ package com.example.MySocialNetwork.repository;
 import com.example.MySocialNetwork.entity.Conversation;
 import com.example.MySocialNetwork.entity.Message;
 import com.example.MySocialNetwork.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,8 @@ import java.util.Optional;
 
 public interface MessageRepository extends CrudRepository<Message, Long> {
     Optional<Message> findByPublicId(String publicId);
+
+    Page<Message> findByConversation(Conversation conversation, Pageable pageable);
 
     List<Message> findByConversationOrderByCreatedAtAsc(Conversation conversation);
 

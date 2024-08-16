@@ -1,5 +1,4 @@
 drop database mysocialnetwork;
--- Tạo cơ sở dữ liệu với bộ ký tự UTF-8 để hỗ trợ tiếng Việt
 CREATE DATABASE MySocialNetwork CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 USE MySocialNetwork;
@@ -89,7 +88,7 @@ CREATE TABLE Report (
     FOREIGN KEY (user_id) REFERENCES User(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Tạo bảng Reactions (nếu bạn có bảng này)
+-- Tạo bảng Reaction
 CREATE TABLE Reaction (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,

@@ -145,5 +145,20 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public void setOnline(String username){
+        User user = getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Username not found " + username + " to set online");
+        }
+        user.setOnline(true);
+    }
 
+    public void setOffline(String username){
+        User user = getUserByUsername(username);
+        if (user == null) {
+            throw new RuntimeException("Username not found " + username + " to set offline");
+
+        }
+        user.setOnline(false);
+    }
 }

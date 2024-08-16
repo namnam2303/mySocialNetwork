@@ -8,10 +8,13 @@ import com.example.MySocialNetwork.repository.ConversationRepository;
 import com.example.MySocialNetwork.repository.MessageRepository;
 import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -30,43 +33,75 @@ public class MessageService {
     }
 
     @Transactional
-    public Message sendMessage(String conversationPublicId, String senderUsername, String content) {
-        Conversation conversation = conversationRepository.findByPublicId(conversationPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationPublicId));
+    public Message sendMessage(String conversationId, String senderUsername, String receiverUsername, String content) {
+        User sender = getUserByUsername(senderUsername);
+        Conversation conversation = getOrCreateConversation(conversationId, sender, receiverUsername);
+        Message message = createAndSaveMessage(conversation, sender, content);
+        updateConversationTimestamp(conversation);
+        return message;
+    }
 
-        User sender = userRepository.findByUsername(senderUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + senderUsername));
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+    }
 
+    private Conversation getOrCreateConversation(String conversationId, User sender, String receiverUsername) {
+        if (conversationId.startsWith("newConversation-")) {
+            return createNewConversation(sender, receiverUsername);
+        } else {
+            return getExistingConversation(conversationId);
+        }
+    }
+
+    private Conversation createNewConversation(User sender, String receiverUsername) {
+        if (receiverUsername == null) {
+            throw new IllegalArgumentException("Receiver username is required for new conversations");
+        }
+        User receiver = getUserByUsername(receiverUsername);
+
+        Set<User> participants = new HashSet<>();
+        participants.add(sender);
+        participants.add(receiver);
+
+        Conversation conversation = new Conversation();
+        conversation.setName(sender.getUsername() + " and " + receiver.getUsername());
+        conversation.setType(Conversation.ConversationType.PRIVATE);
+        conversation.setParticipants(participants);
+        return conversationRepository.save(conversation);
+    }
+
+    private Conversation getExistingConversation(String conversationId) {
+        return conversationRepository.findByPublicId(conversationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationId));
+    }
+
+    private Message createAndSaveMessage(Conversation conversation, User sender, String content) {
         Message message = new Message();
         message.setConversation(conversation);
         message.setSender(sender);
         message.setContent(content);
-        message.getReadByUsers().add(sender.getId());
+        message.setCreatedAt(LocalDateTime.now());
+        return messageRepository.save(message);
+    }
 
-        message = messageRepository.save(message);
-
-        // Update the conversation's last activity
+    private void updateConversationTimestamp(Conversation conversation) {
         conversation.setUpdatedAt(LocalDateTime.now());
         conversationRepository.save(conversation);
-
-        return message;
     }
 
     public Message getMessageByPublicId(String publicId) {
         return messageRepository.findByPublicId(publicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Message not found with publicId: " + publicId));
+                .orElseThrow(() -> new ResourceNotFoundException("Message not found with Id: " + publicId));
     }
 
-    public List<Message> getConversationMessages(String conversationPublicId) {
-        Conversation conversation = conversationRepository.findByPublicId(conversationPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationPublicId));
-
-        return messageRepository.findByConversationOrderByCreatedAtAsc(conversation);
+    public Page<Message> getConversationMessages(Conversation conversation, Pageable pageable) {
+        return messageRepository.findByConversation(conversation, pageable);
     }
 
     public List<Message> getNewMessagesInConversation(String conversationPublicId, LocalDateTime timestamp) {
         Conversation conversation = conversationRepository.findByPublicId(conversationPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationPublicId));
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with Id: " + conversationPublicId));
 
         return messageRepository.findNewMessagesInConversation(conversation, timestamp);
     }
@@ -85,7 +120,7 @@ public class MessageService {
 
     public long getUnreadMessageCount(String conversationPublicId, String username) {
         Conversation conversation = conversationRepository.findByPublicId(conversationPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationPublicId));
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with Id: " + conversationPublicId));
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
@@ -94,7 +129,7 @@ public class MessageService {
 
     public List<Message> getUnreadMessages(String conversationPublicId, String username) {
         Conversation conversation = conversationRepository.findByPublicId(conversationPublicId)
-                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with publicId: " + conversationPublicId));
+                .orElseThrow(() -> new ResourceNotFoundException("Conversation not found with Id: " + conversationPublicId));
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
 
