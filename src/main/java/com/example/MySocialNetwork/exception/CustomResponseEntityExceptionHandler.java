@@ -2,6 +2,7 @@ package com.example.MySocialNetwork.exception;
 
 
 import com.example.MySocialNetwork.exception.Email.EmailAlreadyExistsException;
+import com.example.MySocialNetwork.exception.Login.LoginFailedException;
 import com.example.MySocialNetwork.exception.User.UserAlreadyExistException;
 import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.exception.User.UserNotFoundExceptionResponse;
@@ -41,6 +42,13 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LoginFailedException.class)
+    public ResponseEntity<Object> handleLoginFailedException(LoginFailedException ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("error", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);

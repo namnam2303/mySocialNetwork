@@ -16,5 +16,6 @@ public interface FriendRepository extends CrudRepository<Friend, Long> {
     int countByUserAndStatusAndCreatedAtAfter(User user, Friend.Status status, LocalDateTime createdAt);
     @Query("SELECT f.friend FROM Friend f WHERE f.user = ?1 AND f.status = 'ACCEPTED'")
     List<User> findAllAcceptedFriendsByUser(User user);
-
+    @Query("SELECT f.friend from  Friend  f where f.user =?1 and f.status = 'ACCEPTED' and f.user.isOnline = true ")
+    List<User> findAllFriendOnline(User user);
 }

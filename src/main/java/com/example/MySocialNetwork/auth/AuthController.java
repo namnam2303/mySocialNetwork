@@ -1,6 +1,7 @@
 package com.example.MySocialNetwork.auth;
 
 import com.example.MySocialNetwork.entity.User;
+import com.example.MySocialNetwork.exception.Login.LoginFailedException;
 import com.example.MySocialNetwork.security.config.jwt.JwtResponse;
 import com.example.MySocialNetwork.security.config.jwt.JwtTokenProvider;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
@@ -43,19 +44,23 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userService.getUserByUsername(userDetails.getUsername());
-        userService.setOnline(user.getUsername());
-        return ResponseEntity.ok(new JwtResponse(jwt, user));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            User user = userService.getUserByUsername(userDetails.getUsername());
+            userService.setOnline(user.getUsername());
+            return ResponseEntity.ok(new JwtResponse(jwt, user));
+        } catch (Exception e) {
+            throw new LoginFailedException("Username or password is incorrect");
+        }
     }
 
     @PostMapping("/register")

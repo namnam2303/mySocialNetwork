@@ -3,21 +3,26 @@ package com.example.MySocialNetwork.service;
 import com.example.MySocialNetwork.entity.Friend;
 import com.example.MySocialNetwork.entity.User;
 import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
+import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.repository.FriendRepository;
+import com.example.MySocialNetwork.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class FriendService {
 
     private final FriendRepository friendRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public FriendService(FriendRepository friendRepository) {
+    public FriendService(FriendRepository friendRepository, UserRepository userRepository) {
         this.friendRepository = friendRepository;
+        this.userRepository = userRepository;
     }
 
     public Friend sendFriendRequest(User user, User friend) {
@@ -64,6 +69,14 @@ public class FriendService {
         List<Friend> friends = getAllFriends(user);
         return friends.stream()
                 .map(Friend::getFriend)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    public  List<User> getFriendListOnline(User user) {
+        Optional<User> checkedUser = userRepository.findByUsername(user.getUsername());
+        if (checkedUser.isEmpty()){
+            throw new UserNotFoundException("User with username : " + user.getUsername() + " not found");
+        }
+        return friendRepository.findAllFriendOnline(user);
     }
 }

@@ -2,7 +2,6 @@ package com.example.MySocialNetwork.controller;
 
 import com.example.MySocialNetwork.entity.Friend;
 import com.example.MySocialNetwork.entity.User;
-import com.example.MySocialNetwork.exception.User.ResourceNotFoundException;
 import com.example.MySocialNetwork.exception.User.UserNotFoundException;
 import com.example.MySocialNetwork.service.FriendService;
 import com.example.MySocialNetwork.service.MapValidationErrorService;
@@ -75,6 +74,13 @@ public class FriendController {
         User user = validateUser(username);
         List<User> friendsList = friendService.getFriendsList(user);
         return ResponseEntity.ok(friendsList);
+    }
+
+    @GetMapping("/friends-list-online/{username}")
+    public ResponseEntity<?> getFriendsOnline(@PathVariable String username) {
+        User user = validateUser(username);
+        List<User> friendListOnline = friendService.getFriendListOnline(user);
+        return ResponseEntity.ok(friendListOnline);
     }
 
 
