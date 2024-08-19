@@ -29,7 +29,7 @@ public class FriendController {
         this.mapValidationErrorService = mapValidationErrorService;
     }
 
-    @PostMapping("/{userPublicId}/{friendPublicId}")
+    @PostMapping("/{username}/{friendUsername}")
     public ResponseEntity<?> sendFriendRequest(@PathVariable String username, @PathVariable String friendUsername) {
         User user = validateUser(username);
         User friend = validateUser(friendUsername);
