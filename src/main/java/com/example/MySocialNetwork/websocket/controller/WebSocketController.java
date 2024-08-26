@@ -1,6 +1,7 @@
 package com.example.MySocialNetwork.websocket.controller;
 
 import com.example.MySocialNetwork.websocket.model.WebSocketMessage;
+import com.example.MySocialNetwork.websocket.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -12,8 +13,13 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class WebSocketController {
 
+    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketService webSocketService;
     @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    public WebSocketController(SimpMessagingTemplate messagingTemplate, WebSocketService webSocketService) {
+        this.messagingTemplate = messagingTemplate;
+        this.webSocketService = webSocketService;
+    }
 
     @MessageMapping("/sendMessage")
     @SendTo("/topic/public")
@@ -26,7 +32,10 @@ public class WebSocketController {
     public WebSocketMessage addUser(@Payload WebSocketMessage webSocketMessage,
                                     SimpMessageHeaderAccessor headerAccessor) {
         // Add username in web socket session
-        headerAccessor.getSessionAttributes().put("username", webSocketMessage.getSender());
+        String username = webSocketMessage.getSender();
+        headerAccessor.getSessionAttributes().put("username", username);
+        String sessionId = headerAccessor.getSessionId();
+        webSocketService.addSession(sessionId, username);
         return webSocketMessage;
     }
 
@@ -74,6 +83,15 @@ public class WebSocketController {
     public void handleDebugMessage(WebSocketMessage message) {
         System.out.println("Debug message received: " + message.getAction() + " - " + message.getDetails());
         // Có thể log ra file hoặc gửi đến một hệ thống monitoring
+    }
+
+    // Add a method to handle disconnections
+    public void handleDisconnect(SimpMessageHeaderAccessor headerAccessor) {
+        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        if(username != null && webSocketService.getSessionIdByUsername(username) != null){
+            webSocketService.removeSession(username);
+            System.out.println(headerAccessor.getSessionAttributes().get("username") + " disconnected");
+        }
     }
 
 }

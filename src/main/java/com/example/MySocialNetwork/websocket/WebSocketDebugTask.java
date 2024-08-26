@@ -16,12 +16,6 @@ public class WebSocketDebugTask {
 
     @Scheduled(fixedRate = 5000) // Run every 5 seconds
     public void logActiveConnections() {
-        int activeConnections = webSocketService.getActiveSessionCount();
-        logger.info("Active WebSocket connections: {}", activeConnections);
-
-        // Optionally, you can log more details about each connection
-        webSocketService.getSessions().forEach((id, session) -> {
-            logger.debug("Session ID: {}, Remote Address: {}", id, session.getRemoteAddress());
-        });
+        webSocketService.logAllConnectedClients();
     }
 }
