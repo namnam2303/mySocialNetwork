@@ -69,4 +69,11 @@ public class WebSocketController {
                 message
         );
     }
+
+    @MessageMapping("/debug")
+    public void handleDebugMessage(WebSocketMessage message) {
+        System.out.println("Debug message received: " + message.getAction() + " - " + message.getDetails());
+        // Có thể log ra file hoặc gửi đến một hệ thống monitoring
+    }
+
 }

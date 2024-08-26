@@ -10,8 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class WebSocketMessage {
-    private String content;
-    private String type;
+
     private String sender;
     private String recipient;
+    private String action;
+    private String details;
 }
